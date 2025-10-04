@@ -1,7 +1,8 @@
 {
   "name": "@saas/prettier",
   "version": "8.0.8",
-  "main": "index.mjs",
+  "main": "prettier.config.mjs",
+  "type": "module",
   "private": true,
   "devDependencies": {
     "prettier": "^3.6.2",

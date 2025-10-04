@@ -3,9 +3,9 @@
  */
 
 module.exports = {
-  extends: ['@rocketseat/eslint-config/react1'],
+  extends: ['@rocketseat/eslint-config/node'],
   plugins: ['simple-import-sort'],
   rules: {
-    'simple-import-sort/imports': true
+    'simple-import-sort/imports': "error"
   }
 }

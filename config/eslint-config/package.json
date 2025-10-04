@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
+    "./library": "./library.js",
     "./next-js": "./next.js",
     "./react-internal": "./node.js"
   },
@@ -14,5 +14,5 @@
     "eslint-plugin-simple-import-sort": "^12.1.1"
   }, 
   "prettier": "@saas/prettier",
-  "eslintConfig": {"extends":["./base.js"]}
+  "eslintConfig": {"extends":["./library.js"]}
 }
