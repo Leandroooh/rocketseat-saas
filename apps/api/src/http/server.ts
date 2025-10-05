@@ -1,19 +1,42 @@
 import fastifyCors from '@fastify/cors';
 import { fastify } from 'fastify';
-import {
-  jsonSchemaTransform,
-  serializerCompiler,
-  validatorCompiler,
-  ZodTypeProvider,
-} from 'fastify-type-provider-zod';
+import { jsonSchemaTransform, serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod';
+import { fastifySwagger } from '@fastify/swagger';
+import { fastifySwaggerUi } from '@fastify/swagger-ui';
+import { fastifyJwt } from '@fastify/jwt';
+import { createAccount } from './routes/auth/create-account';
+import { authenticateWithPassword } from './routes/auth/authenticate-with-password';
+import { getProfile } from './routes/auth/get-profile';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: 'Next.js - Saas',
+      description: 'FullStack Saas App With  multi-tenant & RBAC',
+      version: '1.0.0',
+    },
+    servers: [],
+  },
+  transform: jsonSchemaTransform,
+});
+
+app.register(fastifySwaggerUi, {
+  routePrefix: '/docs',
+});
+
+app.register(fastifyJwt, {
+  secret: 'my-jwt-secret',
+});
+
 app.register(fastifyCors);
 
-app
-  .listen({ port: 3000 })
-  .then(() => console.log('Server has been Listen on port 3000'));
+app.register(createAccount);
+app.register(authenticateWithPassword);
+app.register(getProfile);
+
+app.listen({ port: 3000 }).then(() => console.log('Server has been Listen on port 3000'));
