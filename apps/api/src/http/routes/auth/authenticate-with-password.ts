@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma';
-import { compare } from 'bcryptjs';
 import { FastifyInstance } from 'fastify';
-import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
+import { compare } from 'bcryptjs';
 import { BadRequestError } from '../_erros/bad-request-erro';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export async function authenticateWithPassword(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
-    '/session/password',
+    '/session/profile',
     {
       schema: {
         tags: ['auth'],
@@ -19,9 +19,6 @@ export async function authenticateWithPassword(app: FastifyInstance) {
         response: {
           201: z.object({
             token: z.string(),
-          }),
-          400: z.object({
-            message: z.string(),
           }),
         },
       },
@@ -44,7 +41,7 @@ export async function authenticateWithPassword(app: FastifyInstance) {
       const isPasswordValid = await compare(password, userFromEmail.passwordHash);
 
       if (!isPasswordValid) {
-        return reply.status(400).send({ message: 'Ivalid Credentials' });
+        throw new Error('Ivalid Credentials');
       }
 
       const token = await reply.jwtSign(

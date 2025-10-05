@@ -7,11 +7,14 @@ import { fastifyJwt } from '@fastify/jwt';
 import { createAccount } from './routes/auth/create-account';
 import { authenticateWithPassword } from './routes/auth/authenticate-with-password';
 import { getProfile } from './routes/auth/get-profile';
+import { errorHandler } from './error-handler';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
+
+app.setErrorHandler(errorHandler);
 
 app.register(fastifySwagger, {
   openapi: {
