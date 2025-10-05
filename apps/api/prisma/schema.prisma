@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(uuid())
-  name              String?
-  email             String         @unique
-  password          String?        @map("password_hash")
-  avatarUrl         String?        @map("avatar_url")
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  Tokens            Token[]
-  Accounts          Account[]
-  Invites           Invite[]
-  Member_on         Member[]
-  owns_Organization Organization[]
-  owns_Projects     Project[]
+  id           String   @id @default(uuid())
+  name         String?
+  email        String   @unique
+  passwordHash String?  @map("password_hash")
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tokens             Token[]
+  accounts           Account[]
+  invites            Invite[]
+  member_on          Member[]
+  owns_organizations Organization[]
+  owns_projects      Project[]
 
   @@map("users")
 }
@@ -37,10 +31,11 @@ enum TokenType {
 }
 
 model Token {
-  id   String    @id @default(uuid())
-  type TokenType
+  id        String    @id @default(uuid())
+  type      TokenType
+  createdAt DateTime  @default(now()) @map("created_at")
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
   @@map("tokens")
@@ -55,7 +50,7 @@ model Account {
   provider          AccountProvider
   providerAccountId String          @unique @map("provider_account_id")
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
   @@unique([provider, userId])
@@ -74,10 +69,10 @@ model Invite {
   role      Role
   createdAt DateTime @default(now()) @map("created_at")
 
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId String? @map("author_id")
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
   @@unique([email, organizationId])
@@ -89,10 +84,10 @@ model Member {
   id   String @id @default(uuid())
   role Role   @default(MEMBER)
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
   @@unique([organizationId, userId])
@@ -100,42 +95,39 @@ model Member {
 }
 
 model Organization {
-  id                        String  @id @default(uuid())
+  id                        String   @id @default(uuid())
   name                      String
-  slug                      String  @unique
-  domain                    String? @unique
-  shouldAttachUsersByDomain Boolean @default(false) @map("should_attach_users_by_domain")
-  avatarUrl                 String? @map("avatar_url")
+  slug                      String   @unique
+  domain                    String?  @unique
+  shouldAttachUsersByDomain Boolean  @default(false) @map("should_attach_users_by_domain")
+  avatarUrl                 String?  @map("avatar_url")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @map("owner_id")
 
-  owner User @relation(fields: [userId], references: [id])
-
-  Invites  Invite[]
-  Members  Member[]
-  userId   String    @map("user_id")
-  Projects Project[]
+  invites  Invite[]
+  members  Member[]
+  projects Project[]
 
   @@map("organizations")
 }
 
 model Project {
-  id                        String  @id @default(uuid())
-  name                      String
-  slug                      String  @unique
-  domain                    String? @unique
-  shouldAttachUsersByDomain Boolean @default(false) @map("should_attach_users_by_domain")
-  avatarUrl                 String? @map("avatar_url")
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  slug        String   @unique
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-
-  owner  User   @relation(fields: [userId], references: [id])
-  userId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @map("owner_id")
 
   @@map("projects")
 }
