@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  pg:
+    image: bitnamisecure/postgresql:latest
+    environment:
+      - POSTGRESQL_USERNAME=pgdocker
+      - POSTGRESQL_PASSWORD=pgpass
+      - POSTGRESQL_DATABASE=saas
+    ports:
+      - "5432:5432"
