@@ -45,5 +45,6 @@ app.register(authenticateWithPassword);
 app.register(getProfile);
 app.register(requestPasswordRecover);
 app.register(resetPassword);
+app.register(authenticateWithPassword);
 
 app.listen({ port: 3000 }).then(() => console.log('Server has been Listen on port 3000'));
